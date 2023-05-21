@@ -136,18 +136,35 @@ FROM (
 --* بالاترين مديران سازمان کساني هستند که مدير بالادستي ندارند و در فيلد Manager عبارت Null درج شده است
 
 WITH RecursiveChart AS (
-    SELECT Id, name, Manager, ManagerId, 1 AS Level
-    FROM ChartTable
+    SELECT 
+        Id, 
+        Name, 
+        Manager, 
+        ManagerId, 
+        1 AS Level,
+        Name AS TopManager
+    FROM OrganizationChart
     WHERE Manager IS NULL
 
     UNION ALL
 
-    SELECT C.Id, C.name, C.Manager, C.ManagerId, RC.Level + 1
-    FROM ChartTable C
-    INNER JOIN RecursiveChart RC ON C.ManagerId = RC.Id
+    SELECT 
+        c.Id, 
+        c.Name, 
+        c.Manager, 
+        c.ManagerId, 
+        rc.Level + 1,
+        rc.TopManager
+    FROM OrganizationChart AS c
+    INNER JOIN RecursiveChart AS rc ON c.ManagerId = rc.Id
 )
-SELECT RC.name AS Employee, RC.Level AS Level, M.name AS Manager, M.Level AS ManagerLevel
-FROM RecursiveChart RC
-LEFT JOIN RecursiveChart M ON RC.ManagerId = M.Id
-ORDER BY RC.Level
-
+SELECT 
+    c.Id, 
+    c.Name, 
+    c.Manager, 
+    c.ManagerId, 
+    c.Level, 
+    rc.TopManager AS TopManagerName
+FROM OrganizationChart AS c
+INNER JOIN RecursiveChart AS rc ON c.ManagerId = rc.Id
+ORDER BY rc.Level ASC;
