@@ -71,26 +71,46 @@ VALUES (3, 'James', 'Carol', 5) */
 --- 1-کل فروش شرکت
 SELECT SUM(Quantity * UnitPrice) AS TotalSales
 FROM SaleTable;
+
 ---2-تعداد متمايز مشترياني که از اين شرکت خريد داشته اند، چند تاست؟
 SELECT COUNT(DISTINCT Customer) AS UniqueCustomers
-FROM SaleTable
+FROM SaleTable;
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 ---3-اين شرکت از هر محصول چه مقدار فروخته است؟
-SELECT Product, SUM(Quantity) AS TotalSales
+SELECT Product, SUM(Quantity * UnitPrice) AS ProductSale
 FROM SaleTable
-GROUP BY Product
+GROUP BY Product;
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
----4-يک کوئري بنويسيد که در آن مشترياني نمايش داده شوند که حداقل يک فاکتور بيش از مبلغ 1500 دارند و به ازاي هر کدام از اين مشتريان، مبلغ خريد، تعداد فاکتور و تعداد آيتم خريداري شده نمايش داده شود.
-SELECT Customer, SUM(SaleAmount) AS TotalAmount, COUNT(DISTINCT OrderID) AS TotalOrders, SUM(Quantity) AS TotalItems
+---4--یک کوئری بنویسید که در آن مشتریانی نمایش داده شوند که حداقل یک فاکتور بیش از مبلغ 1500 دارند و به ازای هر کدام از این مشتریان، مبلغ خرید، 
+--تعداد فاکتور و تعداد آیتم خریداری شده نمایش داده شود.
+/* SELECT Customer, SUM(SaleAmount) AS TotalAmount, COUNT(DISTINCT OrderID) AS TotalOrders, SUM(Quantity) AS TotalItems
 FROM SaleTable
 GROUP BY Customer
-HAVING MIN(SaleAmount) > 1500
+HAVING MIN(SaleAmount) > 1500 */
 
+ SELECT Customer,
+     count(DISTINCT OrderID) as Factors,
+     sum(Quantity * UnitPrice) as PSale,
+     sum(Quantity) as n
+ FROM SaleTable
+ where Customer in (
+         SELECT Customer as c
+         FROM (
+                 SELECT OrderID,
+                     Customer,
+                     sum(Quantity * UnitPrice) as PSale
+                 from SaleTable
+                 GROUP BY OrderID,
+                     Customer
+                 HAVING PSale >= 1500
+             ) as l
+     )
+ GROUP BY Customer;
 --------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
