@@ -94,21 +94,21 @@ GROUP BY Customer
 HAVING MIN(SaleAmount) > 1500 */
 
  SELECT Customer,
-     count(DISTINCT OrderID) as Factors,
-     sum(Quantity * UnitPrice) as PSale,
-     sum(Quantity) as n
+     COUNT(DISTINCT OrderID) AS Factors,
+     SUM(Quantity * UnitPrice) AS PSale,
+     SUM(Quantity) AS n
  FROM SaleTable
- where Customer in (
-         SELECT Customer as c
+ WHERE Customer IN (
+         SELECT Customer AS c
          FROM (
                  SELECT OrderID,
                      Customer,
-                     sum(Quantity * UnitPrice) as PSale
-                 from SaleTable
+                     SUM(Quantity * UnitPrice) AS PSale
+                 FROM SaleTable
                  GROUP BY OrderID,
                      Customer
                  HAVING PSale >= 1500
-             ) as l
+             ) AS l
      )
  GROUP BY Customer;
 --------------------------------------------------------------------------------------------------------------------------------------------------------------
